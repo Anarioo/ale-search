@@ -1,1 +1,180 @@
 # ale-search
+Ale Reports Search
+
+------
+
+_usage:_
+
+```
+aleSearch [-h] [-t] [-z] [-x] [-y] [-e] [-exact] [-zone ZONE] [-date DATE] [-dateFrom DATEFROM] [-dateTo DATETO] [-epc EPC] file
+```
+
+_positional arguments:_
+
+```
+  file                Input file name
+```
+
+_optional arguments:_
+
+```
+  -h, --help          show this help message and exit
+  -t                  Timestamp
+  -z                  Zone
+  -x                  X coordinate
+  -y                  Y coordinate
+  -e                  Exciter
+  -exact              Exact search
+  -zone ZONE          Filter by zone
+  -date DATE          Filter by exact date
+  -dateFrom DATEFROM  Filter by date start
+  -dateTo DATETO      Filter by date end
+  -epc EPC            EPC pattern to search
+```
+
+---------
+
+1) Search by pattern:
+---------------------
+
+```
+$ ./aleSearch -t -z -x -y -epc 30340717 data.xml
+2016-08-10T15:33:09.048-07:00 SalesFloor 303407172C4E204000000002 16.00 15.00
+2016-08-10T15:33:09.949-07:00 SalesFloor 303407172C4E204000000001 15.81 19.00
+2016-08-10T15:33:10.048-07:00 SalesFloor 303407172C4E20C000000001 21.72 19.81
+2016-08-10T15:33:09.188-07:00 SalesFloor 303407172C4E210000000002 37.00 11.00
+2016-08-10T15:33:09.869-07:00 SalesFloor 303407176813894000000001 33.00 28.59
+2016-08-10T15:33:10.248-07:00 SalesFloor 303407172C4E210000000001 13.91 32.21
+2016-08-10T15:33:10.549-07:00 SalesFloor 303407172C4E208000000001 28.81 10.77
+2016-08-10T15:33:09.968-07:00 SalesFloor 30340717681388C000000001 28.00 19.00
+2016-08-10T15:33:10.189-07:00 SalesFloor 303407176813880000000001 37.00 34.00
+2016-08-10T15:33:10.809-07:00 SalesFloor 303407172C4E204000000001 21.85 23.76
+2016-08-10T15:33:11.989-07:00 SalesFloor 303407172C4E204000000002 21.86 16.27
+```
+
+2) Search by pattern inside of zone:
+------------------------------------
+
+```
+$ ./aleSearch -t -z -x -y -zone SalesFloor -epc 30340717 data.xml 
+2016-08-10T15:33:09.048-07:00 SalesFloor 303407172C4E204000000002 16.00 15.00
+2016-08-10T15:33:09.949-07:00 SalesFloor 303407172C4E204000000001 15.81 19.00
+2016-08-10T15:33:10.048-07:00 SalesFloor 303407172C4E20C000000001 21.72 19.81
+2016-08-10T15:33:09.188-07:00 SalesFloor 303407172C4E210000000002 37.00 11.00
+2016-08-10T15:33:09.869-07:00 SalesFloor 303407176813894000000001 33.00 28.59
+2016-08-10T15:33:10.248-07:00 SalesFloor 303407172C4E210000000001 13.91 32.21
+2016-08-10T15:33:10.549-07:00 SalesFloor 303407172C4E208000000001 28.81 10.77
+2016-08-10T15:33:09.968-07:00 SalesFloor 30340717681388C000000001 28.00 19.00
+2016-08-10T15:33:10.189-07:00 SalesFloor 303407176813880000000001 37.00 34.00
+2016-08-10T15:33:10.809-07:00 SalesFloor 303407172C4E204000000001 21.85 23.76
+2016-08-10T15:33:11.989-07:00 SalesFloor 303407172C4E204000000002 21.86 16.27
+```
+
+* zone, pattern parameters searching by existence of string in attribute inside input file
+it means to search for exact occurrence You have to set -exact attribute in when calling the app
+
+3) Searching with exact parameter:
+----------------------------------
+
+without -exact:
+
+```
+$ ./aleSearch -t -z -x -y -epc 30340717 data.xml 
+2016-08-10T15:33:09.048-07:00 SalesFloor 303407172C4E204000000002 16.00 15.00
+2016-08-10T15:33:09.949-07:00 SalesFloor 303407172C4E204000000001 15.81 19.00
+2016-08-10T15:33:10.048-07:00 SalesFloor 303407172C4E20C000000001 21.72 19.81
+2016-08-10T15:33:09.188-07:00 SalesFloor 303407172C4E210000000002 37.00 11.00
+2016-08-10T15:33:09.869-07:00 SalesFloor 303407176813894000000001 33.00 28.59
+2016-08-10T15:33:10.248-07:00 SalesFloor 303407172C4E210000000001 13.91 32.21
+2016-08-10T15:33:10.549-07:00 SalesFloor 303407172C4E208000000001 28.81 10.77
+2016-08-10T15:33:09.968-07:00 SalesFloor 30340717681388C000000001 28.00 19.00
+2016-08-10T15:33:10.189-07:00 SalesFloor 303407176813880000000001 37.00 34.00
+2016-08-10T15:33:10.809-07:00 SalesFloor 303407172C4E204000000001 21.85 23.76
+2016-08-10T15:33:11.989-07:00 SalesFloor 303407172C4E204000000002 21.86 16.27
+```
+
+with -exact:
+
+```
+$ ./aleSearch -t -z -x -y -exact -epc 30340717 data.xml 
+```
+
+```
+$ ./aleSearch -t -z -x -y -exact 303407172C4E204000000001 data.xml 
+2016-08-10T15:33:09.949-07:00 SalesFloor 303407172C4E204000000001 15.81 19.00
+2016-08-10T15:33:10.809-07:00 SalesFloor 303407172C4E204000000001 21.85 23.76
+```
+
+with -exact and -zone:
+
+```
+$ ./aleSearch -t -z -x -y -exact -zone Sales -epc 303407172C4E204000000001 data.xml 
+```
+
+```
+$ ./aleSearch -t -z -x -y -exact -zone SalesFloor -epc 303407172C4E204000000001 data.xml 
+2016-08-10T15:33:09.949-07:00 SalesFloor 303407172C4E204000000001 15.81 19.00
+2016-08-10T15:33:10.809-07:00 SalesFloor 303407172C4E204000000001 21.85 23.76
+```
+
+4) date filters:
+----------------
+
+_-date filter  - returns records that match by date. format: YYYY-MM-DD_
+_if this filter is defined -dateFrom, -dateTo will be ignored_
+
+```
+$ ./aleSearch -t -z -x -y -date 2016-08-10 data.xml 
+2016-08-10T15:33:11.088-07:00 SalesFloor 303407CF202A698000000002 20.19 10.17
+2016-08-10T15:33:12.048-07:00 SalesFloor 303407CB0C34150000000001 20.86 12.38
+2016-08-10T15:33:11.109-07:00 SalesFloor 303407234429D38000000001 28.00 11.00
+2016-08-10T15:33:11.989-07:00 SalesFloor 303407172C4E204000000002 21.86 16.27
+2016-08-10T15:33:11.989-07:00 SalesFloor 30341DD8E00000000000000C 26.98 13.24
+2016-08-10T15:33:11.968-07:00 SalesFloor 303407CB0C20738000000001 14.41 21.37
+```
+
+_-dateFrom filter  - returns records that inclusively match by starting date. format: YYYY-MM-DD_
+
+```
+$ ./aleSearch -t -z -x -y -dateFrom 2015-01-01 data.xml 
+2015-09-01T15:33:10.849-07:00 SalesFloor 303407CEF03DA68000000001 12.00 19.00
+2015-09-01T15:33:10.809-07:00 SalesFloor 30340723442A1E8000000001 11.14 17.87
+2015-09-01T15:33:10.889-07:00 SalesFloor 303406FF583BF64000000003 2.00 33.00
+2016-08-10T15:33:11.648-07:00 SalesFloor 303406ED841DB08000000001 8.89 36.82
+2016-08-10T15:33:11.209-07:00 SalesFloor 303407DF3809F68000000002 26.68 29.82
+```
+
+_-dateEnd filter  - returns records that inclusively match by ending date. format: YYYY-MM-DD_
+
+```
+$ ./aleSearch -t -z -x -y -dateTo 2015-12-31 data.xml 
+2015-09-01T15:33:10.849-07:00 SalesFloor 303407CEF03DA68000000001 12.00 19.00
+2015-09-01T15:33:10.809-07:00 SalesFloor 30340723442A1E8000000001 11.14 17.87
+2015-09-01T15:33:10.889-07:00 SalesFloor 303406FF583BF64000000003 2.00 33.00
+```
+
+_-dateFrom and -dateTo  - returns records that inclusively match date periods. format: YYYY-MM-DD_
+
+```
+$ ./aleSearch -t -z -x -y -dateFrom 2016-01-01 -dateTo 2016-12-31 data.xml
+2016-08-10T15:33:11.088-07:00 SalesFloor 303407CF202A698000000002 20.19 10.17
+2016-08-10T15:33:12.048-07:00 SalesFloor 303407CB0C34150000000001 20.86 12.38
+2016-08-10T15:33:11.109-07:00 SalesFloor 303407234429D38000000001 28.00 11.00
+2016-08-10T15:33:11.989-07:00 SalesFloor 303407172C4E204000000002 21.86 16.27
+2016-08-10T15:33:11.989-07:00 SalesFloor 30341DD8E00000000000000C 26.98 13.24
+2016-08-10T15:33:11.968-07:00 SalesFloor 303407CB0C20738000000001 14.41 21.37
+```
+
+_-date, -dateFrom, -dateTo filters mixed with other filters and search patterns_
+
+```
+$ ./aleSearch -t -z -x -y -dateFrom 2016-01-01 -dateTo 2017-01-01 -epc 303407CB0C data.xml
+2016-08-10T15:33:08.928-07:00 SalesFloor 303407CB0C20738000000001 4.31 24.07
+2016-08-10T15:33:08.728-07:00 SalesFloor 303407CB0C33978000000001 2.00 16.00
+2016-08-10T15:33:08.829-07:00 SalesFloor 303407CB0C33E30000000001 8.00 11.00
+2016-08-10T15:33:08.848-07:00 SalesFloor 303407CB0C20420000000001 20.00 11.00
+2016-08-10T15:33:08.909-07:00 SalesFloor 303407CB0C33C98000000001 2.00 16.00
+2016-08-10T15:33:09.108-07:00 SalesFloor 303407CB0C20A58000000001 16.00 19.00
+2016-08-10T15:33:12.048-07:00 SalesFloor 303407CB0C34150000000001 20.86 12.38
+2016-08-10T15:33:11.968-07:00 SalesFloor 303407CB0C20738000000001 14.41 21.37
+```
