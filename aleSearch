@@ -1,0 +1,106 @@
+#!/usr/bin/python
+
+import argparse
+import xml.etree.ElementTree as ET
+import dateutil.parser
+
+parser = argparse.ArgumentParser(description='Ale Reports Search')
+parser.add_argument('-t', action="store_true", help='Timestamp', required=False)
+parser.add_argument('-z', action="store_true", help='Zone', required=False)
+parser.add_argument('-x', action="store_true", help='X coordinate', required=False)
+parser.add_argument('-y', action="store_true", help='Y coordinate', required=False)
+parser.add_argument('-e', action="store_true", help='Exciter', required=False)
+parser.add_argument('-exact', action="store_true", help='Exact search', required=False)
+parser.add_argument('-zone', help='Filter by zone', required=False)
+parser.add_argument('-date', help='Filter by exact date', required=False)
+parser.add_argument('-dateFrom', help='Filter by date start', required=False)
+parser.add_argument('-dateTo', help='Filter by date end', required=False)
+parser.add_argument('-epc', help='EPC pattern to search', required=False)
+parser.add_argument('file', help='Input file name')
+args = parser.parse_args()
+
+
+# human readable name for date parser (:
+def getDateTimeFromISO8601String(s):
+    return dateutil.parser.parse(s)
+
+
+# converting date values in args to DateTime object
+if args.date:
+    args.date = getDateTimeFromISO8601String(args.date)
+if args.dateFrom:
+    args.dateFrom = getDateTimeFromISO8601String(args.dateFrom)
+if args.dateTo:
+    args.dateTo = getDateTimeFromISO8601String(args.dateTo)
+
+# "lowercasing" some argument values
+if args.zone:
+    args.zone = args.zone.lower()
+if args.epc:
+    args.epc = args.epc.lower()
+
+
+def search(data):
+    if args.exact == True:
+        if args.epc:  # if -epc set in arguments so filter
+            if args.epc != data['epc'].lower():
+                return False
+        if args.zone:  # if -zone set in arguments so filter
+            if args.zone != data['attrs']['logicalReader'].lower():
+                return False
+    else:
+        if args.epc:  # if -epc set in arguments so filter
+            if not args.epc in data['epc'].lower():
+                return False
+        if args.zone:  # if -zone set in arguments so filter
+            if not args.zone in data['attrs']['logicalReader'].lower():
+                return False
+
+    if args.date or args.dateFrom or args.dateTo:
+        dateTime = getDateTimeFromISO8601String(data['attrs']['ts'])
+        if args.date:
+            if args.date.date() != dateTime.date():
+                return False
+        else:
+            if args.dateFrom:
+                if not args.dateFrom.date() <= dateTime.date():
+                    return False
+            if args.dateTo:
+                if not args.dateTo.date() >= dateTime.date():
+                    return False
+
+    line = []
+    if args.t: line.append(data['attrs']['ts'])
+    if args.z: line.append(data['attrs']['logicalReader'])
+    if args.e: line.append(data['attrs']['eNode'])
+    line.append(data['epc'])
+    if args.x: line.append(data['attrs']['posX'])
+    if args.y: line.append(data['attrs']['posY'])
+    print(' '.join(line))
+
+
+def parse(record):
+    data = {}
+    data['attrs'] = {}
+    for attr, value in record.attrib.iteritems():
+        attr = attr.split('}')
+        attr = attr[-1]
+        data['attrs'][attr] = value
+    data['epc'] = record[0].text
+    data['epc'] = data['epc'][-24:]
+    search(data)
+
+
+with open(args.file) as file:
+    for line in file:
+        line = line.strip()
+        if line:
+            xmlTree = ET.fromstring(line)
+            for reports in xmlTree:
+                for report in reports:
+                    for group in report:
+                        for groupList in group:
+                            for member in groupList:
+                                if member.tag == 'member':
+                                    parse(member)
+file.close()
